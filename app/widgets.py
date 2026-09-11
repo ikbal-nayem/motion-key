@@ -60,9 +60,6 @@ class KeyCaptureButton(QPushButton):
         self.style().unpolish(self)
         self.style().polish(self)
 
-    def key(self) -> str:
-        return self._key
-
     def _start_listening(self):
         self._listening = True
         self.setText("Press a key…")

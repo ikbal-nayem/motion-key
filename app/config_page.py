@@ -188,7 +188,7 @@ class ConfigurationsPage(QWidget):
             return
         try:
             new_id = self.db.create_config(name)
-        except (ValueError, Exception) as exc:
+        except Exception as exc:
             QMessageBox.warning(self, "Could not create configuration", str(exc))
             return
         self.refresh_configs(select_id=new_id)

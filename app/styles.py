@@ -68,13 +68,6 @@ QLabel#sidebarSection {
     padding: 20px 18px 10px 18px;
 }
 
-QLabel#appTitle {
-    color: #eef0f7;
-    font-size: 17px;
-    font-weight: 600;
-    padding: 22px 18px 4px 18px;
-}
-
 QPushButton#navButton {
     text-align: left;
     padding: 12px 18px;

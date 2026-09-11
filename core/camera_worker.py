@@ -25,7 +25,6 @@ _VERTICAL_SWIPES = ("swipe_up", "swipe_down")
 class CameraWorker(QThread):
     frame_ready = Signal(QImage)
     status_changed = Signal(list)  # list[str] of active activity display names
-    log_message = Signal(str)
     error = Signal(str)
     stats_changed = Signal(float, float)  # fps, latency in milliseconds
 
@@ -75,7 +74,6 @@ class CameraWorker(QThread):
         engine = self._engine
         if engine is not None:
             engine.calibrate(seconds)
-            self.log_message.emit(f"Calibrating for {seconds:.0f}s - stand still, facing the camera.")
 
     # ---- worker thread ------------------------------------------------------
     def run(self):
@@ -106,13 +104,6 @@ class CameraWorker(QThread):
 
         engine.on_frame(self._on_frame)
         engine.on_error(lambda exc: self.error.emit(str(exc)))
-        for activity_id in self.mappings:
-            engine.on(activity_id, self._log_event)
-            if ACTIVITIES_BY_ID[activity_id].is_level:
-                engine.on_end(activity_id, self._log_event)
-
-        if config.enable_hands:
-            self.log_message.emit("Hand tracking enabled (a finger activity is mapped).")
 
         try:
             engine.run(CameraSource(self.camera_index))
@@ -144,14 +135,3 @@ class CameraWorker(QThread):
         # paying for a colour conversion on every frame.
         image = QImage(canvas.data, width, height, 3 * width, QImage.Format.Format_BGR888)
         self.frame_ready.emit(image.copy())
-
-    def _log_event(self, event):
-        definition = ACTIVITIES_BY_ID.get(event.activity)
-        name = definition.name if definition else event.activity
-        key = self.mappings.get(event.activity, "")
-        if definition is not None and definition.is_edge:
-            self.log_message.emit(f"Tap '{key}'  ({name})")
-        elif event.phase.value == "start":
-            self.log_message.emit(f"Hold '{key}'  ({name})")
-        else:
-            self.log_message.emit(f"Release '{key}'  ({name})")
